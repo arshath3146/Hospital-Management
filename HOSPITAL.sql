@@ -190,3 +190,46 @@ END $$
 
 DELIMITER ;
 
+
+CREATE VIEW PatientLastAppointment AS
+SELECT p.patient_id, p.first_name, p.last_name, p.dob, p.gender, p.phone_number, p.address,
+       MAX(a.appointment_date) AS last_appointment_date
+FROM Patients p
+LEFT JOIN Appointments a ON p.patient_id = a.patient_id
+GROUP BY p.patient_id, p.first_name, p.last_name, p.dob, p.gender, p.phone_number, p.address;
+SELECT * FROM PatientLastAppointment;
+
+	
+CREATE VIEW DoctorSchedule AS
+SELECT d.doctor_id, d.first_name AS doctor_first_name, d.last_name AS doctor_last_name, 
+       p.first_name AS patient_first_name, p.last_name AS patient_last_name, 
+       a.appointment_date, a.appointment_time
+FROM Doctors d
+JOIN Appointments a ON d.doctor_id = a.doctor_id
+JOIN Patients p ON a.patient_id = p.patient_id;
+
+CREATE VIEW MedicationsView AS
+SELECT m.medication_id, p.first_name AS patient_first_name, p.last_name AS patient_last_name,
+       d.first_name AS doctor_first_name, d.last_name AS doctor_last_name,
+       m.medication_name, m.dosage, m.start_date, m.end_date
+FROM Medications m
+JOIN Patients p ON m.patient_id = p.patient_id
+JOIN Doctors d ON m.doctor_id = d.doctor_id;
+SELECT * FROM MedicationsView;
+
+
+CREATE VIEW DoctorByDepartment AS
+SELECT d.doctor_id, d.first_name, d.last_name, dep.department_name
+FROM Doctors d
+JOIN Departments dep ON d.department_id = dep.department_id;
+SELECT * FROM DoctorByDepartment;
+
+CREATE VIEW UpcomingAppointments AS
+SELECT a.appointment_id, p.first_name AS patient_first_name, p.last_name AS patient_last_name,
+       d.first_name AS doctor_first_name, d.last_name AS doctor_last_name,
+       a.appointment_date, a.appointment_time
+FROM Appointments a
+JOIN Patients p ON a.patient_id = p.patient_id
+JOIN Doctors d ON a.doctor_id = d.doctor_id
+WHERE a.appointment_date >= CURDATE();
+
